@@ -11,7 +11,27 @@ const mix = require('laravel-mix');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
+const fs = require('fs');
+const path = require('path');
+
+const homeDir = process.env.HOME;
+const host = process.env.APP_URL.split('//')[1];
+
+//Options and webpackConfig added for using Laravel Valet SSL routing
+
+mix.js('resources/js/app.js', 'public/js').vue()
     .postCss('resources/css/app.css', 'public/css', [
         //
-    ]);
+    ]).options({
+        hmrOptions: {
+            host: host,
+            port: '8080',
+        }
+    }).webpackConfig({
+        devServer: {
+            https: {
+                key: fs.readFileSync(path.resolve(homeDir, `.config/valet/Certificates/${host}.key`)),
+                cert: fs.readFileSync(path.resolve(homeDir, `.config/valet/Certificates/${host}.crt`)),
+            }
+        }
+    });
