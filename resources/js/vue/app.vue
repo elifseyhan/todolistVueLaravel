@@ -2,19 +2,43 @@
   <div class="todoListContainer">
     <div class="heading">
       <h2 id="title">Todo List</h2>
+    <add-item-form
+        v-on:reloadlist="getList()"
+    />
     </div>
-    <add-item-form />
+    <list-view 
+        :items="items"
+        v-on:reloadlist="getList()" />
   </div>
-  <list-view />
 </template>
 
 <script>
 import addItemForm from "./addItemForm.vue";
 import listView from "./listView.vue";
 export default {
+  mounted() {
+    this.getList();
+  },
   components: {
     addItemForm,
     listView,
+  },
+  data: function () {
+    return {
+      items: [],
+    };
+  },
+  methods: {
+    getList() {
+      axios
+        .get("api/items")
+        .then((response) => {
+          this.items = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 };
 </script>
